@@ -1,0 +1,7 @@
+[
+{text:'班级1',leaf:true},
+{text:'班级2', leaf: true},
+{text:'班级3', children: [
+  {text:'学生1', leaf: true}
+]}
+]
