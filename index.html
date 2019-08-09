@@ -1,31 +1,131 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Tree</title>
-    <link rel="stylesheet" type="text/css" href="resources/css/ext-all.css" />
-    <!-- LIBS -->
+    <title>tree-homework</title>
+    <link rel="stylesHeet" type="text/css" href="resources/css/ext-all.css" />
     <script type="text/javascript" src="adapter/ext/ext-base.js"></script>
-    <!-- ENDLIBS -->
     <script type="text/javascript" src="ext-all.js"></script>
     <script>
-        Ext.onReady(function() {
-            var root = new Ext.tree.AsyncTreeNode({
-                text: '班级',
+        Ext.onReady(function () {
+            var root = new Ext.tree.TreeNode({
+                text: ''
+            })
+            var selectedRoot = null
+            var students = new Ext.tree.TreeNode({
+                text: 'students Manage',
+                id: 'students-root',
+                checked: false,
                 expanded: true,
-                // expandable:true
+                listeners: {
+                    'checkchange': function (node, check) {
+                        if (check) {
+                            selectedRoot = node
+                        } else {
+                            selectedRoot = null
+                        }
+                    }
+                }
+            })
+            var classes = new Ext.tree.TreeNode({
+                text: 'classes Manage',
+                id: 'classes-root',
+                checked: false,
+                expanded: true,
+                listeners: {
+                    'checkchange': function (node, check) {
+                        if (check) {
+                            selectedRoot = node
+                        } else {
+                            selectedRoot = null
+                        }
+                    }
+                }
+            })
+            root.appendChild(students)
+            root.appendChild(classes)
+            students.appendChild(new Ext.tree.TreeNode({ text: 'Jeffrey' }))
+            classes.appendChild(new Ext.tree.TreeNode({ text: 'SUZ' }))
+            var menu = new Ext.menu.Menu({
+                items: [{
+                    id: 'updateNode',
+                    text: 'Update Name'
+                }, {
+                    id: 'addNode',
+                    text: 'Add New Item'
+                }],
+                listeners: {
+                    'itemclick': function (item) {
+                        switch (item.id) {
+                            case 'updateNode':
+                                var currentNode = item.parentMenu.contextMenu
+                                break
+                            case 'addNode':
+                                var currentNode = item.parentMenu.contextMenu
+                                break
+                        }
+                    }
+                }
+            })
+            var mainTree = new Ext.tree.TreePanel({
+                renderTo: 'tree-region',
+                width: 400,
+                height: 400,
+                root: root,
+                rootVisible: false,
+                contextMenu: menu,
+                lines: false,
+                listeners: {
+                    'contextmenu': function (node, e) {
+                        node.select()
+                        var treeContextMenu = node.getOwnerTree().contextMenu
+                        treeContextMenu.contextMenu = node
+                        treeContextMenu.showAt(e.getXY())
+                    }
+                }
+            })
+            var treeEditor = new Ext.tree.TreeEditor(mainTree, { allowBlank: false }, {
+                listeners: {
+                    'complete': function (editor, newValue, oldValue) {
+                        Ext.Msg.alert('tips', oldValue + ' Has changed to ' + newValue)
+                    }
+                }
+            })
+            var addForm = new Ext.FormPanel({
+                renderTo: 'add-region',
+                labelWidth: 80,
+                frame: true,
+                title: 'Add',
+                bodyStyle: 'padding:5px 5px 0',
+                width: 300,
+                items: [{
+                    fieldLabel: ' Name',
+                    xtype: 'textfield',
+                    name: 'item',
+                    allowBlank: false
+                }],
+                buttons: [{
+                    text: 'Add',
+                    type: 'submit',
+                    handler: function () {
+                        if (addForm.form.isValid()) {
+                            if (selectedRoot.id) {
+                                selectedRoot.appendChild(new Ext.tree.TreeNode({ text: addForm.form.findField('item').getValue() }))
+                                addForm.form.reset();
+                                return
+                            }
+                            // Ext.Msg.alert('tips', 'Please select an item to add')
+                        }
+                    }
+                }]
             });
-            var tree = new Ext.tree.TreePanel({
-                renderTo: 'test',
-                width: 200,
-                height: 300,
-                loader: new Ext.tree.TreeLoader({dataUrl: 'tree.txt'}),
-                root: root
-            });
-        });
+        })
     </script>
 </head>
+
 <body>
-<div id="test"></div>
+<div id="tree-region" style="float: left"></div>
+<div id="add-region" style="float: left; margin-left: 20px;"></div>
 </body>
+
 </html>
